@@ -1,5 +1,5 @@
 import streamlit as st
-from bs4 import BeautifulSoup4
+from bs4 import BeautifulSoup
 import requests
 import requests.exceptions
 import urllib.parse
@@ -35,7 +35,7 @@ try:
         new_emails = set(re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", response.text, re.I))
         emails.update(new_emails)
 
-        soup = BeautifulSoup4(response.text, features="lxml")
+        soup = BeautifulSoup(response.text, features="lxml")
 
         for anchor in soup.find_all("a"):
             link = anchor.attrs['href'] if 'href' in anchor.attrs else ''
