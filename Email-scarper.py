@@ -1,3 +1,4 @@
+from requests.api import request
 import streamlit as st
 from bs4 import BeautifulSoup
 import requests
@@ -6,9 +7,49 @@ import urllib.parse
 from collections import deque
 import re
 
-user_url = st.text_input('[+] Enter Target URL To Scan: ')
-urls = deque([user_url])
 
+
+#################################################################    
+#def formaturl(user_url):
+#    if not re.match('(?:http|ftp|https)://', user_url):
+#        return 'http://{}'.format(user_url)
+#    return user_url
+
+#adr=formaturl(user_url=st.text_input('[+] Enter Target URL To Scan: '))
+###
+
+#def fix_url(orig_link):
+    # force scheme 
+#    split_comps = urllib.parse.urlsplit(orig_link, scheme='https')
+    # fix netloc (can happen when there is no scheme)
+#    if not len(split_comps.netloc):
+#        if len(split_comps.path):
+            # override components with fixed netloc and path
+#            split_comps = urllib.parse.SplitResult(scheme='https',netloc=split_comps.path,path='',query=split_comps.query,fragment=split_comps.fragment)
+        
+#    return urllib.parse.urlunsplit(split_comps)
+
+#adr=fix_url(orig_link=st.text_input('[+] Enter Target URL To Scan: '))
+
+
+###########################################################################################
+
+def convert(user_url):
+    #user_url = st.text_input('[+] Enter Target URL To Scan: ')
+    if user_url.startswith('http://www.'):
+        return 'http://' + user_url[len('http://www.'):]
+    if user_url.startswith('www.'):
+        return 'http://' + user_url[len('www.'):]
+    if not user_url.startswith('http://'):
+        return 'http://' + user_url
+    
+
+adr=convert(user_url=st.text_input('[+] Enter Target URL To Scan: '))
+
+
+
+urls = deque([adr])
+    
 scraped_urls = set()
 emails = set()
 
@@ -23,10 +64,11 @@ try:
 
         parts = urllib.parse.urlsplit(url)
         base_url = '{0.scheme}://{0.netloc}'.format(parts)
+        
 
         path = url[:url.rfind('/')+1] if '/' in parts.path else url
 
-        st.write('[%d] Processing %s' % (count, url))
+        st.write('[%d] Processing %s' %  (count,url))
         try:
             response = requests.get(url)
         except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
