@@ -42,6 +42,7 @@ def convert(user_url):
         return 'http://' + user_url[len('www.'):]
     if not user_url.startswith('http://'):
         return 'http://' + user_url
+    return user_url
     
 
 adr=convert(user_url=st.text_input('[+] Enter Target URL To Scan: '))
@@ -52,7 +53,7 @@ urls = deque([adr])
     
 scraped_urls = set()
 emails = set()
-
+broken_urls = set()
 count = 0
 try:
     while len(urls):
@@ -71,9 +72,10 @@ try:
         st.write('[%d] Processing %s' %  (count,url))
         try:
             response = requests.get(url)
-        except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
+        except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError, requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema):
+        # add broken urls to it's own set, then continue
+            broken_urls.add(url)
             continue
-
         new_emails = set(re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", response.text, re.I))
         emails.update(new_emails)
 
